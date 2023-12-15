@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Tabla de cuentas
+model Account {
+  idAccount     Int      @id @default(autoincrement())
+  nameAccount   String   @unique
+  email         String   @unique
+  password      String
+  roleAccount   Int
+  createDate    DateTime @default(now())
+  updateData    DateTime @default(now())
+  statusAccount Boolean  @default(true)
+  role          Role     @relation(fields: [roleAccount], references: [idRole])
+}
+
+model Role {
+  idRole     Int       @id @default(autoincrement())
+  nameRole   String    @unique
+  createDate DateTime  @default(now())
+  updateData DateTime  @default(now())
+  statusRol  Boolean   @default(true)
+  account    Account[]
+  roleHashPermission RoleHashPermission[]
+}
+
+model Permission {
+  idPermission     Int      @id @default(autoincrement())
+  namePermission   String   @unique
+  endPoint         String   @unique
+  createDate       DateTime @default(now())
+  updateData       DateTime @default(now())
+  statusPermission Boolean  @default(true)
+  roleHashPermission RoleHashPermission[]
+}
+
+model RoleHashPermission {
+  idRoleHashPermission Int @id @default(autoincrement())
+  idRole Int
+  idPermission Int
+  createDate       DateTime @default(now())
+  updateData       DateTime @default(now())
+  statusRoleHashPermission Boolean  @default(true)
+  role Role @relation(fields: [idRole],references: [idRole])
+  permission Permission @relation(fields: [idPermission], references: [idPermission])
+}
+

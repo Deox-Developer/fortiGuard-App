@@ -1,0 +1,23 @@
+#bg-home {
+    background-image: url(../../../assets/home/fondoPantalla_home.png);
+    background-size: cover;
+    background-position: center;
+    height: 80vh;/* Esto asegura que la imagen de fondo cubra toda la altura de la pantalla */
+}
+
+#img-logo-main{margin-top: -30px;}
+
+
+#carouselExampleSlidesOnly {
+    height: 6vh; /* Ajusta la altura según tus necesidades */
+    max-height: 500px; /* Establece una altura máxima para evitar que la imagen sea demasiado alta */
+    width: 100%; /* La imagen ocupa el 100% del ancho del contenedor */
+    object-fit: cover; /* Mantiene las proporciones y corta la imagen si es necesario para llenar el contenedor */
+    margin: auto; /* Centra horizontalmente el carrusel en su contenedor */
+    margin-top: 35px;
+}
+
+#btn-prueba-gratis{
+    background-color: rgb(255, 101, 40);
+}
+
