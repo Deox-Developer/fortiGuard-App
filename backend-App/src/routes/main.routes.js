@@ -7,7 +7,7 @@ import loginRoutes from './login.routes.js'
 const router = Router();
 
 router.use('/login',loginRoutes);
-router.use('/accounts', authenticateToken, accountRoutes);
+router.use('/accounts', accountRoutes);
 router.use('/roles',authenticateToken, roleRoutes);
 
 // Middleware de ruta de error
@@ -20,3 +20,4 @@ router.use((req, res) => {
 export function mainRoutes(app) {
     app.use('/api', router);
 }
+

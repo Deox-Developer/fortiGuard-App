@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
 const prisma = new PrismaClient();
 
@@ -26,9 +28,11 @@ export async function createAccount(req, res) {
         } = req.body;
 
         if (!nameAccount || !email || !password || !roleAccount) {
+
             return res.status(400).json({
-                message: 'Los campos obligatorios son requeridos.'
+                message: 'Todos los campos obligatorios son requeridos. Asegúrese de proporcionar nameAccount, email, password y roleAccount.',
             });
+
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -42,10 +46,26 @@ export async function createAccount(req, res) {
             }
         });
 
-        res.json(newAccount);
+
+
+        dotenv.config();
+
+        const secret = process.env.JWT_SECRET;
+
+        if (!secret) {
+            console.error('La variable de entorno JWT_SECRET no está configurada.');
+            return res.status(500).json({ message: 'Error interno del servidor.' });
+        }
+
+        const token = jwt.sign({ userId: newAccount.id, userEmail: newAccount.email }, secret, {
+            expiresIn: '15m', // Duración del token (ajustar según necesidades)
+        });
+        
+        res.json({ token });
     } catch (error) {
         res.status(500).json({
-            message: error.message
+            message: 'Error interno del servidor al crear la cuenta.',
+            error: error.message,
         });
     }
 }

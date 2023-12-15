@@ -28,6 +28,7 @@ export async function login(req, res) {
         }
 
         dotenv.config();
+
         const secret = process.env.JWT_SECRET;
 
         if (!secret) {

@@ -5,7 +5,6 @@ import { login, logout } from '../modules/auth/login.controller.js';
 const router = Router();
 
 // Ruta para iniciar sesión
-router.get('/',login);
 router.post('/singin', login);
 router.post('/logout', logout);
 

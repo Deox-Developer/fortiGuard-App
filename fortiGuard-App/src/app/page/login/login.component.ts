@@ -69,7 +69,6 @@ export class LoginComponent {
           // Puedes manejar la situación donde no se recibe un token adecuadamente
         }
 
-        // Resto de la lógica exitosa
       },
       (error: any) => {
         console.error('Error al enviar datos a la API:', error);
