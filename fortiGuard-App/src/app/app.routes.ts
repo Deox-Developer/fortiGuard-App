@@ -8,7 +8,9 @@ import {ServicesComponent} from './page/services/services.component'
 import {AboutComponent} from './page/about/about.component'
 import {LoginComponent} from './page/login/login.component'
 import {DashboardComponent} from './page/dashboard/dashboard.component'
-import { RegisterAccountComponent } from './page/register-account/register-account.component' 
+import { RegisterAccountComponent } from './page/register-account/register-account.component'
+import {ProfileComponent} from './page/profile/profile.component'
+
 export const routes: Routes = [
     { path: 'home', component: HomeComponent },
     { path: 'services', component: ServicesComponent },
@@ -16,6 +18,7 @@ export const routes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'dashboard', component: DashboardComponent },
     { path: 'register', component: RegisterAccountComponent },
+    { path: 'profile', component: ProfileComponent },
     { path: '', redirectTo: 'home', pathMatch: 'full' }, // Sin barra inclinada al principio
     { path: '**', component: ErrorComponent }, // Sin barra inclinada al principio
   ];

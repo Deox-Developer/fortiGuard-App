@@ -25,8 +25,9 @@ function main() {
     const port = process.env.PORT_BACK || 3000;
 
     app.listen(port, () => {
-        console.log('Backend ACTIVO - OrenTronic Port:', port, 'by FortiGuard App');
+        console.log(`Backend ACTIVO - listening on http://localhost:${port} by FortiGuard App`);
     });
 }
+
 
 main();

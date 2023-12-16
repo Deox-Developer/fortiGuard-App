@@ -49,8 +49,7 @@ export class LoginComponent {
       withCredentials: true,
     }).subscribe(
       (response) => {
-        console.log('Respuesta de la API:', response);
-
+        
         // Verificar si hay un token en la respuesta
         if (response && response.token) {
           const token = response.token;

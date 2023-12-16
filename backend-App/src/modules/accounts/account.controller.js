@@ -17,6 +17,32 @@ export async function getAccounts(req, res) {
     }
 }
 
+// Obtener los detalles de una cuenta por su ID
+export async function getAccountDetails(req, res) {
+    try {
+        const accountId = req.params.id;
+
+        const existingAccount = await prisma.account.findUnique({
+            where: {
+                idAccount: accountId,
+            },
+        });
+
+        if (!existingAccount) {
+            return res.status(404).json({
+                message: 'La cuenta especificada no existe.',
+            });
+        }
+        res.json(existingAccount);
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
+    }
+}
+
+
 // Crear una cuenta
 export async function createAccount(req, res) {
     try {
@@ -28,11 +54,9 @@ export async function createAccount(req, res) {
         } = req.body;
 
         if (!nameAccount || !email || !password || !roleAccount) {
-
             return res.status(400).json({
                 message: 'Todos los campos obligatorios son requeridos. Asegúrese de proporcionar nameAccount, email, password y roleAccount.',
             });
-
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -41,28 +65,39 @@ export async function createAccount(req, res) {
             data: {
                 nameAccount,
                 email,
-                password: hashedPassword, // Almacena la contraseña hasheada
+                password: hashedPassword,
                 roleAccount,
             }
         });
 
-
-
-        dotenv.config();
-
+        // Usar la información de la nueva cuenta para generar el token
         const secret = process.env.JWT_SECRET;
 
         if (!secret) {
             console.error('La variable de entorno JWT_SECRET no está configurada.');
-            return res.status(500).json({ message: 'Error interno del servidor.' });
+            return res.status(500).json({
+                error: 'Error interno del servidor.',
+            });
         }
 
-        const token = jwt.sign({ userId: newAccount.id, userEmail: newAccount.email }, secret, {
-            expiresIn: '15m', // Duración del token (ajustar según necesidades)
-        });
-        
+        const token = jwt.sign(
+            {
+                userId: newAccount.idAccount,  // Cambiar user.idAccount a newAccount.idAccount
+                userAccount: newAccount.nameAccount,
+                userEmail: newAccount.email,
+                userRole: newAccount.roleAccount,
+                createDate: newAccount.createDate.toISOString(),
+            },
+            secret,
+            {
+                expiresIn: '15m',
+            }
+        );
+
         res.json({ token });
+
     } catch (error) {
+        console.error('Error al crear la cuenta:', error);
         res.status(500).json({
             message: 'Error interno del servidor al crear la cuenta.',
             error: error.message,

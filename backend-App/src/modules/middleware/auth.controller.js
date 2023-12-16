@@ -25,6 +25,7 @@ export function authenticateToken(req, res, next) {
           return res.status(403).json({ error: 'Error al verificar el token' });
         }
       }
+      
 
       // Token válido, adjuntar la información del usuario a la solicitud
       req.user = user;

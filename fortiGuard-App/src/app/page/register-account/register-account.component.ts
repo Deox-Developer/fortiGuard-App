@@ -33,6 +33,7 @@ export class RegisterAccountComponent {
   ) { }
 
 
+
   registerAccount() {
     // Crear un objeto con la información del formulario
     const accountData = {
@@ -42,6 +43,8 @@ export class RegisterAccountComponent {
       roleAccount: this.roleAccount
     };
 
+    console.log(accountData)
+
     this.httpClient.post<any>('http://localhost:3000/api/accounts/createAccount', accountData, {
       headers: {
         'Content-Type': 'application/json',
@@ -49,11 +52,11 @@ export class RegisterAccountComponent {
       withCredentials: true,
     }).subscribe(
       (response) => {
-        console.log('Respuesta de la API:', response);
+        //console.log('Respuesta de la API:', response);
         // Resto de la lógica exitosa
         if (response && response.token) {
           const token = response.token;
-          
+
           localStorage.setItem('authToken', token);  
           // Esperar 6 segundos antes de redirigir al dashboard
           setTimeout(() => {

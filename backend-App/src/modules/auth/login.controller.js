@@ -11,40 +11,50 @@ export async function login(req, res) {
 
         if (!email || !password) {
             return res.status(400).json({
-                message: 'Correo electrónico y contraseña son obligatorios.'
+                error: 'Correo electrónico y contraseña son obligatorios.',
             });
         }
 
         const user = await prisma.account.findUnique({
             where: {
-                email: email
-            }
+                email: email,
+            },
         });
 
         if (!user || !bcrypt.compareSync(password, user.password)) {
             return res.status(401).json({
-                message: 'Credenciales incorrectas o usuario no encontrado.'
+                error: 'Credenciales incorrectas o usuario no encontrado.',
             });
         }
-
-        dotenv.config();
 
         const secret = process.env.JWT_SECRET;
 
         if (!secret) {
             console.error('La variable de entorno JWT_SECRET no está configurada.');
-            return res.status(500).json({ message: 'Error interno del servidor.' });
+            return res.status(500).json({
+                error: 'Error interno del servidor.',
+            });
         }
 
-        const token = jwt.sign({ userId: user.id, userEmail: user.email }, secret, {
-            expiresIn: '15m', // Duración del token (ajustar según necesidades)
-        });
+        const token = jwt.sign(
+            {
+                userId: user.idAccount,
+                userAccount: user.nameAccount,
+                userEmail: user.email,
+                userRole: user.roleAccount,
+                createDate: user.createDate.toISOString(), // Convertir a formato ISO para ser compatible con JSON
+            },
+            secret,
+            {
+                expiresIn: '15m', // Duración del token (ajustar según necesidades)
+            }
+        );
 
         res.json({ token });
     } catch (error) {
         console.error('Error en la función login:', error);
         res.status(500).json({
-            message: 'Error interno del servidor.'
+            error: 'Error interno del servidor.',
         });
     }
 }
