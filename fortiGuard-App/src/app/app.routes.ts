@@ -1,8 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
 import { Routes } from '@angular/router';
 import { HomeComponent } from './page/home/home.component'
-import { NgModel } from '@angular/forms';
 import {ErrorComponent} from './page/error/error.component'
 import {ServicesComponent} from './page/services/services.component'
 import {AboutComponent} from './page/about/about.component'
