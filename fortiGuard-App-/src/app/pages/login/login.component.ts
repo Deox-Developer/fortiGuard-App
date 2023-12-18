@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { AuthComponent } from '../../components/auth/auth.component';
 import { HeaderComponent } from '../../components/header/header.component';
 import { FooterComponent } from '../../components/footer/footer.component';
+import { FormLoginComponent } from '../../components/form-login/form-login.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [AuthComponent,HeaderComponent, FooterComponent],
+  imports: [HeaderComponent, FooterComponent, FormLoginComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })

@@ -1,0 +1,14 @@
+<section>
+    <h1>Login</h1>
+    <form [formGroup] = "dataFormLogin" (ngSubmit)="dataSend()">
+        <label for="email">
+            <input type="email" formControlName="email" name="email" placeholder="Correo electrónico">
+        </label>
+
+        <label for="password">
+            <input type="password" formControlName="password" name="password" placeholder="Password">
+        </label>
+        <button type="submit" [disabled]="!dataFormLogin.valid" >Ingresar</button>
+    </form>
+</section>
+
