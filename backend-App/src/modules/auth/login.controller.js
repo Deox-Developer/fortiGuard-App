@@ -3,6 +3,8 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
+dotenv.config();
+
 const prisma = new PrismaClient();
 
 export async function login(req, res) {
@@ -67,7 +69,7 @@ export async function logout(req, res) {
             return res.status(401).json({ error: 'Token no proporcionado' });
         }
 
-        dotenv.config();
+       
         const secret = process.env.JWT_SECRET;
 
         if (!secret) {

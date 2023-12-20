@@ -1,24 +1,15 @@
-import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
 import { Routes } from '@angular/router';
-import { HomeComponent } from './page/home/home.component'
-import { NgModel } from '@angular/forms';
-import {ErrorComponent} from './page/error/error.component'
-import {ServicesComponent} from './page/services/services.component'
-import {AboutComponent} from './page/about/about.component'
-import {LoginComponent} from './page/login/login.component'
-import {DashboardComponent} from './page/dashboard/dashboard.component'
-import { RegisterAccountComponent } from './page/register-account/register-account.component'
-import {ProfileComponent} from './page/profile/profile.component'
+import { HomeComponent } from './views/home/home.component';
+import { LoginComponent } from './views/login/login.component';
+import { PageErrorComponent } from './views/page-error/page-error.component';
+import { DashboardComponent } from './views/dashboard/dashboard.component';
+import { RegisterAcountComponent } from './views/register-acount/register-acount.component';
 
 export const routes: Routes = [
     { path: 'home', component: HomeComponent },
-    { path: 'services', component: ServicesComponent },
-    { path: 'about', component: AboutComponent },
-    { path: 'login', component: LoginComponent },
+    { path: 'auth', component: LoginComponent },
+    { path: 'register', component: RegisterAcountComponent },
     { path: 'dashboard', component: DashboardComponent },
-    { path: 'register', component: RegisterAccountComponent },
-    { path: 'profile', component: ProfileComponent },
-    { path: '', redirectTo: 'home', pathMatch: 'full' }, // Sin barra inclinada al principio
-    { path: '**', component: ErrorComponent }, // Sin barra inclinada al principio
-  ];
+    { path: '', redirectTo: 'home', pathMatch: 'full' },
+    { path: '**', component: PageErrorComponent }
+];

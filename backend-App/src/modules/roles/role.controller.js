@@ -1,14 +1,16 @@
-// Importa las dependencias necesarias
-
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// Envia todos los roles
-
+// Obtener todos los roles
 export async function getRoles(req, res) {
     try {
-        const roles = await prisma.role.findMany();
+        const roles = await prisma.role.findMany({
+            include: {
+                account: true,
+                roleHashPermission: true,
+            }
+        });
         res.json(roles);
     } catch (error) {
         res.status(500).json({
@@ -17,28 +19,50 @@ export async function getRoles(req, res) {
     }
 }
 
-// Crear un rol
+// Obtener los detalles de un rol por su ID
+export async function getRoleDetails(req, res) {
+    try {
+        const roleId = req.params.id;
 
+        const existingRole = await prisma.role.findUnique({
+            where: {
+                idRole: roleId,
+            },
+            include: {
+                account: true,
+                roleHashPermission: true,
+            },
+        });
+
+        if (!existingRole) {
+            return res.status(404).json({
+                message: 'El rol especificado no existe.',
+            });
+        }
+        res.json(existingRole);
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
+    }
+}
+
+// Crear un rol
 export async function createRole(req, res) {
     try {
-        // Extrae los datos del cuerpo de la solicitud (req.body)
-        const {
-            nameRole,
-            // Otros campos necesarios para la creación del rol
-        } = req.body;
+        const { nameRole } = req.body;
 
-        // Verifica si los campos obligatorios están presentes
         if (!nameRole) {
             return res.status(400).json({
                 message: 'El nombre del rol es obligatorio.'
             });
         }
 
-        // Crea el rol
         const newRole = await prisma.role.create({
             data: {
                 nameRole,
-                // Otros campos necesarios para la creación del rol
+                updateData: new Date(),  // Agregar la fecha de actualización
             }
         });
 
@@ -51,24 +75,18 @@ export async function createRole(req, res) {
 }
 
 // Actualizar un rol
-
 export async function updateRole(req, res) {
     try {
-        // Extrae los datos del cuerpo de la solicitud (req.body)
-        const {
-            roleId, // Asumiendo que recibes el ID del rol a actualizar
-            nameRole,
-            // Otros campos necesarios para la actualización del rol
-        } = req.body;
+        const roleId = req.params.id;
 
-        // Verifica si el campo roleId está presente
-        if (!roleId) {
+        const { nameRole } = req.body;
+
+        if (!nameRole) {
             return res.status(400).json({
-                message: 'Se requiere el ID del rol para la actualización.'
+                message: 'El nombre del rol es obligatorio.'
             });
         }
 
-        // Comprueba si el rol con el ID proporcionado existe
         const existingRole = await prisma.role.findUnique({
             where: {
                 idRole: roleId
@@ -81,14 +99,13 @@ export async function updateRole(req, res) {
             });
         }
 
-        // Realiza la actualización del rol
         const updatedRole = await prisma.role.update({
             where: {
                 idRole: roleId
             },
             data: {
                 nameRole,
-                // Otros campos necesarios para la actualización del rol
+                updateData: new Date(),  // Agregar la fecha de actualización
             }
         });
 
@@ -100,26 +117,58 @@ export async function updateRole(req, res) {
     }
 }
 
-// Eliminar un rol
-
-export async function deleteRole(req, res) {
+// Desactivar un rol (borrado lógico)
+export async function softDeleteRole(req, res) {
     try {
-        const roleId = req.params.id; // Supongamos que obtienes el ID del rol desde los parámetros de la solicitud
+        const roleId = req.params.id;
 
-        // Comprueba si el rol con el ID proporcionado existe
-        const role = await prisma.role.findUnique({
+        const existingRole = await prisma.role.findUnique({
             where: {
                 idRole: roleId
             }
         });
 
-        if (!role) {
+        if (!existingRole) {
             return res.status(404).json({
                 message: 'El rol especificado no existe.'
             });
         }
 
-        // Elimina el rol
+        await prisma.role.update({
+            where: {
+                idRole: roleId
+            },
+            data: {
+                statusRol: false,
+                updateData: new Date(),  // Agregar la fecha de actualización
+            }
+        });
+
+        res.json({ message: 'El rol ha sido desactivado con éxito.' });
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+}
+
+// Eliminar un rol
+export async function deleteRole(req, res) {
+    try {
+        const roleId = req.params.id;
+
+        const existingRole = await prisma.role.findUnique({
+            where: {
+                idRole: roleId
+            }
+        });
+
+        if (!existingRole) {
+            return res.status(404).json({
+                message: 'El rol especificado no existe.'
+            });
+        }
+
         await prisma.role.delete({
             where: {
                 idRole: roleId

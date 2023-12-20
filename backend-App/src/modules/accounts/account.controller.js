@@ -3,45 +3,53 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
+dotenv.config();
+
+
 const prisma = new PrismaClient();
 
 // Obtener todas las cuentas
 export async function getAccounts(req, res) {
     try {
-        const accounts = await prisma.account.findMany();
-        res.json(accounts);
+      const accounts = await prisma.account.findMany({
+        include: {
+          person: true,
+          role: true,
+        },
+      });
+      res.json(accounts);
     } catch (error) {
-        res.status(500).json({
-            message: error.message
-        });
+      res.status(500).json({
+        message: error.message,
+      });
     }
-}
+  }
 
 // Obtener los detalles de una cuenta por su ID
 export async function getAccountDetails(req, res) {
     try {
-        const accountId = req.params.id;
-
+        const accountId = parseInt(req.body.idAccount); // Asegúrate de que el id sea un número
         const existingAccount = await prisma.account.findUnique({
             where: {
                 idAccount: accountId,
             },
+            include: {
+                person: true,
+                role: true,
+            },
         });
-
         if (!existingAccount) {
             return res.status(404).json({
                 message: 'La cuenta especificada no existe.',
             });
         }
         res.json(existingAccount);
-
     } catch (error) {
         res.status(500).json({
             message: error.message,
         });
     }
 }
-
 
 // Crear una cuenta
 export async function createAccount(req, res) {
@@ -50,10 +58,11 @@ export async function createAccount(req, res) {
             nameAccount,
             email,
             password,
-            roleAccount
+            roleAccount,
+            idPerson
         } = req.body;
 
-        if (!nameAccount || !email || !password || !roleAccount) {
+        if (!nameAccount || !email || !password || !roleAccount || !idPerson) {
             return res.status(400).json({
                 message: 'Todos los campos obligatorios son requeridos. Asegúrese de proporcionar nameAccount, email, password y roleAccount.',
             });
@@ -66,11 +75,17 @@ export async function createAccount(req, res) {
                 nameAccount,
                 email,
                 password: hashedPassword,
-                roleAccount,
+                updateData: new Date(),
+                role: {
+                    connect: { idRole: roleAccount }
+                },
+                person: {
+                    connect: { idPerson: idPerson }
+                }
             }
         });
 
-        // Usar la información de la nueva cuenta para generar el token
+        // Generar el token
         const secret = process.env.JWT_SECRET;
 
         if (!secret) {
@@ -82,20 +97,19 @@ export async function createAccount(req, res) {
 
         const token = jwt.sign(
             {
-                userId: newAccount.idAccount,  // Cambiar user.idAccount a newAccount.idAccount
+                userId: newAccount.idAccount,
                 userAccount: newAccount.nameAccount,
                 userEmail: newAccount.email,
                 userRole: newAccount.roleAccount,
-                createDate: newAccount.createDate.toISOString(),
+                createDate: newAccount.createDate.toISOString(), // Convertir a formato ISO para ser compatible con JSON
             },
             secret,
             {
-                expiresIn: '15m',
+                expiresIn: '15m', // Duración del token (ajustar según necesidades)
             }
         );
 
         res.json({ token });
-
     } catch (error) {
         console.error('Error al crear la cuenta:', error);
         res.status(500).json({
@@ -104,8 +118,8 @@ export async function createAccount(req, res) {
         });
     }
 }
-
 // Actualizar una cuenta
+
 export async function updateAccount(req, res) {
     try {
         const accountId = req.params.id;
@@ -146,6 +160,7 @@ export async function updateAccount(req, res) {
                 email,
                 password: hashedPassword,
                 roleAccount,
+                updateData: new Date(),  // Agregar la fecha de actualización
             }
         });
 
@@ -158,6 +173,7 @@ export async function updateAccount(req, res) {
 }
 
 // Desactivar una cuenta (borrado lógico)
+
 export async function softDeleteAccount(req, res) {
     try {
         const accountId = req.params.id;
@@ -179,7 +195,8 @@ export async function softDeleteAccount(req, res) {
                 idAccount: accountId
             },
             data: {
-                statusAccount: false
+                statusAccount: false,
+                updateData: new Date(),  // Agregar la fecha de actualización
             }
         });
 

@@ -16,7 +16,31 @@ model Account {
   updateData    DateTime @default(now())
   statusAccount Boolean  @default(true)
   roleAccount   Int
+  idPerson      Int
+  person        Person   @relation(fields: [idPerson], references: [idPerson])
   role          Role     @relation(fields: [roleAccount], references: [idRole])
+}
+
+model Person {
+  idPerson           Int                @id @default(autoincrement())
+  names              String
+  lastNames          String
+  createDate         DateTime           @default(now())
+  updateDate         DateTime           @default(now())
+  idIdentification   Int
+  numIdentification  String             @unique
+  account            Account[]
+  phone              Int                @unique
+  typeIdentification TypeIdentification @relation(fields: [idIdentification], references: [idTypeIdentification])
+}
+
+model TypeIdentification {
+  idTypeIdentification     Int      @id @default(autoincrement())
+  nameIdentification       String   @unique
+  createDate               DateTime @default(now())
+  updateDate               DateTime @default(now())
+  statusTypeIdentification Boolean  @default(true)
+  person                   Person[]
 }
 
 model Role {

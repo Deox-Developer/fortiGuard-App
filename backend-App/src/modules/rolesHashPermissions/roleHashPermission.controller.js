@@ -1,11 +1,8 @@
-// Importa las dependencias necesarias
-
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// Enviar todas las relaciones entre roles y permisos
-
+// Obtener todas las asignaciones de permisos a roles
 export async function getRoleHashPermissions(req, res) {
     try {
         const roleHashPermissions = await prisma.roleHashPermission.findMany();
@@ -17,56 +14,51 @@ export async function getRoleHashPermissions(req, res) {
     }
 }
 
-// Crear una relación entre rol y permiso
+// Obtener los detalles de una asignación de permiso a rol por su ID
+export async function getRoleHashPermissionDetails(req, res) {
+    try {
+        const roleHashPermissionId = req.params.id;
 
+        const existingRoleHashPermission = await prisma.roleHashPermission.findUnique({
+            where: {
+                idRoleHashPermission: roleHashPermissionId,
+            },
+            include: {
+                permission: true,
+                role: true,
+            },
+        });
+
+        if (!existingRoleHashPermission) {
+            return res.status(404).json({
+                message: 'La asignación de permiso a rol especificada no existe.',
+            });
+        }
+        res.json(existingRoleHashPermission);
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
+    }
+}
+
+// Crear una asignación de permiso a rol
 export async function createRoleHashPermission(req, res) {
     try {
-        // Extrae los datos del cuerpo de la solicitud (req.body)
-        const {
-            roleId, // ID del rol
-            permissionId, // ID del permiso
-            // Otros campos necesarios para la creación de la relación
-        } = req.body;
+        const { idRole, idPermission } = req.body;
 
-        // Verifica si los campos obligatorios están presentes
-        if (!roleId || !permissionId) {
+        if (!idRole || !idPermission) {
             return res.status(400).json({
-                message: 'El ID del rol y el ID del permiso son obligatorios.'
+                message: 'Los campos idRole e idPermission son obligatorios.'
             });
         }
 
-        // Comprueba si el rol con el ID proporcionado existe
-        const existingRole = await prisma.role.findUnique({
-            where: {
-                idRole: roleId
-            }
-        });
-
-        if (!existingRole) {
-            return res.status(404).json({
-                message: 'El rol especificado no existe.'
-            });
-        }
-
-        // Comprueba si el permiso con el ID proporcionado existe
-        const existingPermission = await prisma.permission.findUnique({
-            where: {
-                idPermission: permissionId
-            }
-        });
-
-        if (!existingPermission) {
-            return res.status(404).json({
-                message: 'El permiso especificado no existe.'
-            });
-        }
-
-        // Crea la relación entre el rol y el permiso
         const newRoleHashPermission = await prisma.roleHashPermission.create({
             data: {
-                idRole: roleId,
-                idPermission: permissionId,
-                // Otros campos necesarios para la creación de la relación
+                idRole,
+                idPermission,
+                updateData: new Date(),  // Agregar la fecha de actualización
             }
         });
 
@@ -78,26 +70,19 @@ export async function createRoleHashPermission(req, res) {
     }
 }
 
-// Actualizar una relación entre rol y permiso
-
+// Actualizar una asignación de permiso a rol
 export async function updateRoleHashPermission(req, res) {
     try {
-        // Extrae los datos del cuerpo de la solicitud (req.body)
-        const {
-            roleHashPermissionId, // Asumiendo que recibes el ID de la relación a actualizar
-            roleId, // ID del rol
-            permissionId, // ID del permiso
-            // Otros campos necesarios para la actualización de la relación
-        } = req.body;
+        const roleHashPermissionId = req.params.id;
 
-        // Verifica si el campo roleHashPermissionId está presente
-        if (!roleHashPermissionId) {
+        const { idRole, idPermission } = req.body;
+
+        if (!idRole || !idPermission) {
             return res.status(400).json({
-                message: 'Se requiere el ID de la relación entre rol y permiso para la actualización.'
+                message: 'Los campos idRole e idPermission son obligatorios.'
             });
         }
 
-        // Comprueba si la relación con el ID proporcionado existe
         const existingRoleHashPermission = await prisma.roleHashPermission.findUnique({
             where: {
                 idRoleHashPermission: roleHashPermissionId
@@ -106,45 +91,18 @@ export async function updateRoleHashPermission(req, res) {
 
         if (!existingRoleHashPermission) {
             return res.status(404).json({
-                message: 'La relación entre rol y permiso especificada no existe.'
+                message: 'La asignación de permiso a rol especificada no existe.'
             });
         }
 
-        // Comprueba si el rol con el ID proporcionado existe
-        const existingRole = await prisma.role.findUnique({
-            where: {
-                idRole: roleId
-            }
-        });
-
-        if (!existingRole) {
-            return res.status(404).json({
-                message: 'El rol especificado no existe.'
-            });
-        }
-
-        // Comprueba si el permiso con el ID proporcionado existe
-        const existingPermission = await prisma.permission.findUnique({
-            where: {
-                idPermission: permissionId
-            }
-        });
-
-        if (!existingPermission) {
-            return res.status(404).json({
-                message: 'El permiso especificado no existe.'
-            });
-        }
-
-        // Realiza la actualización de la relación entre rol y permiso
         const updatedRoleHashPermission = await prisma.roleHashPermission.update({
             where: {
                 idRoleHashPermission: roleHashPermissionId
             },
             data: {
-                idRole: roleId,
-                idPermission: permissionId,
-                // Otros campos necesarios para la actualización de la relación
+                idRole,
+                idPermission,
+                updateData: new Date(),  // Agregar la fecha de actualización
             }
         });
 
@@ -156,26 +114,58 @@ export async function updateRoleHashPermission(req, res) {
     }
 }
 
-// Eliminar una relación entre rol y permiso
-
-export async function deleteRoleHashPermission(req, res) {
+// Desactivar una asignación de permiso a rol (borrado lógico)
+export async function softDeleteRoleHashPermission(req, res) {
     try {
-        const roleHashPermissionId = req.params.id; // Supongamos que obtienes el ID de la relación desde los parámetros de la solicitud
+        const roleHashPermissionId = req.params.id;
 
-        // Comprueba si la relación con el ID proporcionado existe
-        const roleHashPermission = await prisma.roleHashPermission.findUnique({
+        const existingRoleHashPermission = await prisma.roleHashPermission.findUnique({
             where: {
                 idRoleHashPermission: roleHashPermissionId
             }
         });
 
-        if (!roleHashPermission) {
+        if (!existingRoleHashPermission) {
             return res.status(404).json({
-                message: 'La relación entre rol y permiso especificada no existe.'
+                message: 'La asignación de permiso a rol especificada no existe.'
             });
         }
 
-        // Elimina la relación entre rol y permiso
+        await prisma.roleHashPermission.update({
+            where: {
+                idRoleHashPermission: roleHashPermissionId
+            },
+            data: {
+                statusRoleHashPermission: false,
+                updateData: new Date(),  // Agregar la fecha de actualización
+            }
+        });
+
+        res.json({ message: 'La asignación de permiso a rol ha sido desactivada con éxito.' });
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+}
+
+// Eliminar una asignación de permiso a rol
+export async function deleteRoleHashPermission(req, res) {
+    try {
+        const roleHashPermissionId = req.params.id;
+
+        const existingRoleHashPermission = await prisma.roleHashPermission.findUnique({
+            where: {
+                idRoleHashPermission: roleHashPermissionId
+            }
+        });
+
+        if (!existingRoleHashPermission) {
+            return res.status(404).json({
+                message: 'La asignación de permiso a rol especificada no existe.'
+            });
+        }
+
         await prisma.roleHashPermission.delete({
             where: {
                 idRoleHashPermission: roleHashPermissionId
@@ -183,7 +173,7 @@ export async function deleteRoleHashPermission(req, res) {
         });
 
         res.json({
-            message: 'La relación entre rol y permiso ha sido eliminada exitosamente.'
+            message: 'La asignación de permiso a rol ha sido eliminada exitosamente.'
         });
     } catch (error) {
         res.status(500).json({

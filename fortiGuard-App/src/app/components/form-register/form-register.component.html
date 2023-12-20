@@ -1,0 +1,71 @@
+<section class="container mt-5 px-4 py-5">
+  <div class="d-flex justify-content-center align-items-center">
+    <div class="col-md-8">
+      <h1 class="mb-4 text-center">Register Account</h1>
+      <form (submit)="sendData()">
+
+        <!-- Tu contenido actual ... -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="names" class="form-label">Ingresar nombre:</label>
+            <input type="text" class="form-control" placeholder="Nombre" [(ngModel)]="names" name="names">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="lastNames" class="form-label">Ingresar apellido:</label>
+            <input type="text" class="form-control" placeholder="Apellido" [(ngModel)]="lastNames" name="lastNames">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="email" class="form-label">Ingresar email:</label>
+            <input type="email" class="form-control" placeholder="Correo electrónico" [(ngModel)]="email" name="email">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="password" class="form-label">Ingresa una constraseña</label>
+            <input type="password" class="form-control" placeholder="Contraseña" [(ngModel)]="password" name="password">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="idIdentification" class="form-label">Tipo de Identificación</label>
+            <select class="form-select" aria-label="Default select example" [(ngModel)]="idIdentification"
+              name="idIdentification">
+              <option value="1">Cédula</option>
+              <option value="2">Ruc</option>
+              <option value="3">Pasaporte</option>
+              <!-- Agrega más opciones según sea necesario -->
+            </select>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="numIdentification" class="form-label">Número de Identificación</label>
+            <input type="text" class="form-control" placeholder="Número de Identificación"
+              [(ngModel)]="numIdentification" name="numIdentification">
+          </div>
+
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="nameAccount" class="form-label">Ingresa nombre de usuario</label>
+            <input type="text" class="form-control" placeholder="Username" [(ngModel)]="nameAccount" name="nameAccount">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="numContacto" class="form-label">Contacto</label>
+            <input type="number" class="form-control" placeholder="Número de celular" [(ngModel)]="phone" name="phone">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12 text-center mb-3">
+            <!-- Utiliza col-md-12 para que ocupe todo el ancho y text-center para centrar el contenido -->
+            <button type="submit" class="btn btn-primary btn-lg">Ingresa</button>
+            <!-- Agrega la clase btn-lg para hacer el botón más grande -->
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

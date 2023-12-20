@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "fortiGuard-App": {
+    "fortiGuard-app": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -30,8 +30,10 @@
              
             ],
             "scripts": [
+              "node_modules/jquery/dist/jquery.min.js",
               "node_modules/@popperjs/core/dist/umd/popper.min.js",
-              "node_modules/bootstrap/dist/js/bootstrap.min.js"
+              "node_modules/bootstrap/dist/js/bootstrap.min.js",
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
             ],
             "server": "src/main.server.ts",
             "prerender": true,
@@ -67,10 +69,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "fortiGuard-App:build:production"
+              "buildTarget": "fortiGuard-app:build:production"
             },
             "development": {
-              "buildTarget": "fortiGuard-App:build:development"
+              "buildTarget": "fortiGuard-app:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -78,7 +80,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "fortiGuard-App:build"
+            "buildTarget": "fortiGuard-app:build"
           }
         },
         "test": {

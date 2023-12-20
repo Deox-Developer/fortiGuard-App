@@ -1,11 +1,8 @@
-// Importa las dependencias necesarias
-
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// Envia todos los permisos
-
+// Obtener todas las permisos
 export async function getPermissions(req, res) {
     try {
         const permissions = await prisma.permission.findMany();
@@ -17,61 +14,79 @@ export async function getPermissions(req, res) {
     }
 }
 
-// Crear un permiso
+// Obtener los detalles de un permiso por su ID
+export async function getPermissionDetails(req, res) {
+    try {
+        const permissionId = req.params.id;
 
+        const existingPermission = await prisma.permission.findUnique({
+            where: {
+                idPermission: permissionId,
+            },
+        });
+
+        if (!existingPermission) {
+            return res.status(404).json({
+                message: 'El permiso especificado no existe.',
+            });
+        }
+        res.json(existingPermission);
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
+    }
+}
+
+// Crear un permiso
 export async function createPermission(req, res) {
     try {
-        // Extrae los datos del cuerpo de la solicitud (req.body)
         const {
             namePermission,
-            endPoint,
-            // Otros campos necesarios para la creación del permiso
+            endPoint
         } = req.body;
 
-        // Verifica si los campos obligatorios están presentes
         if (!namePermission || !endPoint) {
             return res.status(400).json({
-                message: 'El nombre del permiso y el endpoint son obligatorios.'
+                message: 'Todos los campos obligatorios son requeridos. Asegúrese de proporcionar namePermission y endPoint.',
             });
         }
 
-        // Crea el permiso
         const newPermission = await prisma.permission.create({
             data: {
                 namePermission,
                 endPoint,
-                // Otros campos necesarios para la creación del permiso
+                updateData: new Date(),  // Agregar la fecha de actualización
             }
         });
 
         res.json(newPermission);
     } catch (error) {
+        console.error('Error al crear el permiso:', error);
         res.status(500).json({
-            message: error.message
+            message: 'Error interno del servidor al crear el permiso.',
+            error: error.message,
         });
     }
 }
 
 // Actualizar un permiso
-
 export async function updatePermission(req, res) {
     try {
-        // Extrae los datos del cuerpo de la solicitud (req.body)
+        const permissionId = req.params.id;
+
         const {
-            permissionId, // Asumiendo que recibes el ID del permiso a actualizar
             namePermission,
-            endPoint,
-            // Otros campos necesarios para la actualización del permiso
+            endPoint
         } = req.body;
 
-        // Verifica si el campo permissionId está presente
-        if (!permissionId) {
+        if (!namePermission || !endPoint) {
             return res.status(400).json({
-                message: 'Se requiere el ID del permiso para la actualización.'
+                message: 'Los campos obligatorios son requeridos.'
             });
         }
 
-        // Comprueba si el permiso con el ID proporcionado existe
         const existingPermission = await prisma.permission.findUnique({
             where: {
                 idPermission: permissionId
@@ -84,7 +99,6 @@ export async function updatePermission(req, res) {
             });
         }
 
-        // Realiza la actualización del permiso
         const updatedPermission = await prisma.permission.update({
             where: {
                 idPermission: permissionId
@@ -92,7 +106,7 @@ export async function updatePermission(req, res) {
             data: {
                 namePermission,
                 endPoint,
-                // Otros campos necesarios para la actualización del permiso
+                updateData: new Date(),  // Agregar la fecha de actualización
             }
         });
 
@@ -104,26 +118,58 @@ export async function updatePermission(req, res) {
     }
 }
 
-// Eliminar un permiso
-
-export async function deletePermission(req, res) {
+// Desactivar un permiso (borrado lógico)
+export async function softDeletePermission(req, res) {
     try {
-        const permissionId = req.params.id; // Supongamos que obtienes el ID del permiso desde los parámetros de la solicitud
+        const permissionId = req.params.id;
 
-        // Comprueba si el permiso con el ID proporcionado existe
-        const permission = await prisma.permission.findUnique({
+        const existingPermission = await prisma.permission.findUnique({
             where: {
                 idPermission: permissionId
             }
         });
 
-        if (!permission) {
+        if (!existingPermission) {
             return res.status(404).json({
                 message: 'El permiso especificado no existe.'
             });
         }
 
-        // Elimina el permiso
+        await prisma.permission.update({
+            where: {
+                idPermission: permissionId
+            },
+            data: {
+                statusPermission: false,
+                updateData: new Date(),  // Agregar la fecha de actualización
+            }
+        });
+
+        res.json({ message: 'El permiso ha sido desactivado con éxito.' });
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+}
+
+// Eliminar un permiso
+export async function deletePermission(req, res) {
+    try {
+        const permissionId = req.params.id;
+
+        const existingPermission = await prisma.permission.findUnique({
+            where: {
+                idPermission: permissionId
+            }
+        });
+
+        if (!existingPermission) {
+            return res.status(404).json({
+                message: 'El permiso especificado no existe.'
+            });
+        }
+
         await prisma.permission.delete({
             where: {
                 idPermission: permissionId

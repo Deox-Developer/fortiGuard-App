@@ -8,6 +8,7 @@ export function authenticateToken(req, res, next) {
   try {
     // Manejo de Token en el Encabezado
     const token = req.header('Authorization');
+    console.log('Token recibido:', token);
     if (!token) {
       return res.status(401).json({ error: 'Token no proporcionado en el encabezado Authorization' });
     }
