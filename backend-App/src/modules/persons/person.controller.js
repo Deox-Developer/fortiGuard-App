@@ -178,32 +178,19 @@ export async function softDeletePerson(req, res) {
     }
 }
 
-// Eliminar una persona
 export async function deletePerson(req, res) {
     try {
-        const personId = req.params.id;
+        // Obtener el id de la persona de los parámetros de la URL
+        const personId = parseInt(req.params.id, 10);  // Convertir a número base 10
 
-        const existingPerson = await prisma.person.findUnique({
-            where: {
-                idPerson: personId
-            }
-        });
-
-        if (!existingPerson) {
-            return res.status(404).json({
-                message: 'La persona especificada no existe.'
+        // Verificar si la conversión fue exitosa
+        if (isNaN(personId)) {
+            return res.status(400).json({
+                message: 'El ID de la persona no es válido.'
             });
         }
 
-        await prisma.person.delete({
-            where: {
-                idPerson: personId
-            }
-        });
-
-        res.json({
-            message: 'La persona ha sido eliminada exitosamente.'
-        });
+        // Resto del código para eliminar la persona...
     } catch (error) {
         res.status(500).json({
             message: error.message

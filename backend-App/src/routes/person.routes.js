@@ -9,6 +9,6 @@ router.post('/viewPerson',  getPersonDetails);
 router.post('/createPerson', createPerson);
 router.put('/updatePerson',  updatePerson);
 router.put('/softDeletePerson',  softDeletePerson);
-router.delete('/deletePerson',  deletePerson);
+router.delete('/deletePerson/:id',  deletePerson);
 
 export default router;

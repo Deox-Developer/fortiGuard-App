@@ -16,6 +16,6 @@ router.post('/viewAccount/', getAccountDetails);
 router.post('/createAccount', createAccount);
 router.put('/updateAccount/', updateAccount);
 router.put('/softDeleteAccount/',softDeleteAccount);
-router.delete('/deleteAccount/',  deleteAccount)
+router.delete('/deleteAccount/:id',  deleteAccount)
 
 export default router;

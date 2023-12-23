@@ -122,7 +122,7 @@ export async function createAccount(req, res) {
 
 export async function updateAccount(req, res) {
     try {
-        const accountId = req.params.id;
+        const accountId = req.body.id;
 
         const {
             nameAccount,
@@ -163,7 +163,6 @@ export async function updateAccount(req, res) {
                 updateData: new Date(),  // Agregar la fecha de actualización
             }
         });
-
         res.json(updatedAccount);
     } catch (error) {
         res.status(500).json({
@@ -176,7 +175,7 @@ export async function updateAccount(req, res) {
 
 export async function softDeleteAccount(req, res) {
     try {
-        const accountId = req.params.id;
+        const accountId = req.body.id;
 
         const existingAccount = await prisma.account.findUnique({
             where: {
@@ -209,34 +208,42 @@ export async function softDeleteAccount(req, res) {
 }
 
 // Eliminar una cuenta
+// Modifica la función deleteAccount en el servidor
 export async function deleteAccount(req, res) {
     try {
-        const accountId = req.params.id;
-
-        const existingAccount = await prisma.account.findUnique({
-            where: {
-                idAccount: accountId
-            }
+      const accountId = parseInt(req.params.id, 10);
+  
+      if (isNaN(accountId)) {
+        return res.status(400).json({
+          message: 'El ID de la cuenta no es válido.'
         });
-
-        if (!existingAccount) {
-            return res.status(404).json({
-                message: 'La cuenta especificada no existe.'
-            });
+      }
+  
+      const existingAccount = await prisma.account.findUnique({
+        where: {
+          idAccount: accountId
         }
-
-        await prisma.account.delete({
-            where: {
-                idAccount: accountId
-            }
+      });
+  
+      if (!existingAccount) {
+        return res.status(404).json({
+          message: 'La cuenta especificada no existe.'
         });
-
-        res.json({
-            message: 'La cuenta ha sido eliminada exitosamente.'
-        });
+      }
+  
+      await prisma.account.delete({
+        where: {
+          idAccount: accountId
+        }
+      });
+  
+      res.json({
+        message: 'La cuenta ha sido eliminada exitosamente.'
+      });
     } catch (error) {
-        res.status(500).json({
-            message: error.message
-        });
+      console.error('Error en el servidor (Eliminar cuenta):', error);
+      res.status(500).json({
+        message: 'Error interno del servidor.'
+      });
     }
-}
+  }

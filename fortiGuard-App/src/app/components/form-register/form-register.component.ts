@@ -1,41 +1,44 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RegisterAcountService } from '../../services/register-acount.service';
-import { AuthenticationService } from '../../services/authentication.service';
+import { RegisterAccountService } from '../../services/register-acount.service';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 
 @Component({
   selector: 'app-form-register',
   standalone: true,
   imports: [
-    FormsModule
+    FormsModule,
+    CommonModule
   ],
   templateUrl: './form-register.component.html',
   styleUrl: './form-register.component.css'
 })
-export class FormRegisterComponent {
 
+
+export class FormRegisterComponent {
   email = '';
   password = '';
   nameAccount = '';
   idRole = 2;
   names = '';
   lastNames = '';
-  idIdentification : number | null = null;
+  idIdentification: number | null = null;
   numIdentification = '';
   phone: number | null = null;
 
+  errorMessage: string = '';
+  successMessage: string = '';
 
   constructor(
-    private registerAcountService: RegisterAcountService,
-    private router : Router
+    private registerAccountService: RegisterAccountService,
+    private router: Router
   ) { }
 
   async sendData(): Promise<void> {
     try {
-      // Llamada a performRegisterPerson
-      const person = await this.registerAcountService.performRegisterPerson({
+      const person = await this.registerAccountService.performRegisterPerson({
         names: this.names,
         lastNames: this.lastNames,
         idIdentification: this.idIdentification != null ? +this.idIdentification : null,
@@ -43,7 +46,6 @@ export class FormRegisterComponent {
         phone: this.phone != null ? +this.phone : null,
       });
 
-      // Llamada a performRegisterAcc después de que performRegisterPerson se complete
       const formDataAuthAcc = {
         email: this.email,
         password: this.password,
@@ -52,32 +54,33 @@ export class FormRegisterComponent {
         idPerson: person.idPerson
       };
 
-      // Realizar la llamada y esperar a que se complete
-      const response = await this.registerAcountService.performRegisterAcc(formDataAuthAcc);
+      const response = await this.registerAccountService.performRegisterAcc(formDataAuthAcc);
 
-      if (response){
-        this.router.navigate(['/dashboard'])
-        location.reload();
-      }else{
-        console.log('Cuenta no registrada, intentalo nuevamente!')
+      if (response) {
+        this.successMessage = 'Account registered successfully!';
+        setTimeout(() => {
+          this.hideMessages();
+          this.router.navigate(['/dashboard']);
+          location.reload();
+        }, 5000); // Ocultar el mensaje de éxito y redirigir después de 5 segundos
+      } else {
+        this.errorMessage = 'Account not registered, please try again.';
+        setTimeout(() => {
+          this.hideMessages();
+        }, 5000); // Ocultar el mensaje de error después de 5 segundos
       }
-      // Llamada a performLogin después de que performRegisterAcc se complete
-      //const formDataAuth = {
-      //  email: this.email,
-      //  password: this.password
-      //};
-      
-      // Realizar la llamada y esperar a que se complete
-      //const loginResponse = await this.authenticationService.performLogin(formDataAuth);
 
-      // Realizar acciones adicionales después de la solicitud de inicio de sesión, si es necesario
-      //const token = loginResponse.token;
-      //this.authenticationService.storeTokenAndRedirect(token);
-
-      // Resto del código...
     } catch (error) {
-      console.error('Error al crear la cuenta:', error);
-      // Manejar el error si es necesario
+      console.error('Error creating account:', error);
+      this.errorMessage = 'Error creating account. Please try again.';
+      setTimeout(() => {
+        this.hideMessages();
+      }, 5000); // Ocultar el mensaje de error después de 5 segundos
     }
+  }
+
+  hideMessages(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
   }
 }
